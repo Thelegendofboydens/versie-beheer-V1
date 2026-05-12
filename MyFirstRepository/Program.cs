@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 class Program
 {
     static void Main()
     {
         Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("╔════════════════════════════════════════╗");
         Console.WriteLine("║     WELCOME TO DUNGEON RPG QUEST       ║");
         Console.WriteLine("╚════════════════════════════════════════╝\n");
+        Console.ResetColor();
 
         Game game = new Game();
         game.Start();
@@ -18,10 +21,49 @@ class Program
 
 class Game
 {
-    private Player player;
-    private Store store;
+    // Constants for efficiency and maintainability
+    private const ConsoleColor HeaderColor = ConsoleColor.DarkCyan;
+    private const ConsoleColor MenuColor = ConsoleColor.Cyan;
+    private const ConsoleColor PromptColor = ConsoleColor.Yellow;
+    private const ConsoleColor SuccessColor = ConsoleColor.Green;
+    private const ConsoleColor ErrorColor = ConsoleColor.Red;
+    private const ConsoleColor InfoColor = ConsoleColor.White;
+    private const ConsoleColor EnemyColor = ConsoleColor.Red;
+    private const ConsoleColor PlayerColor = ConsoleColor.Green;
+    private const ConsoleColor GoldColor = ConsoleColor.Yellow;
+    private const ConsoleColor NarrationColor = ConsoleColor.Gray;
+
+    private Player player = null!;
+    private Store store = null!;
     private Random random = new Random();
     private bool gameRunning = true;
+
+    // Helper methods for efficiency
+    private void DrawHeader(string title)
+    {
+        Console.Clear();
+        WriteLine("═══════════════════════════════════════", HeaderColor);
+        WriteLine($"            {title}", HeaderColor);
+        WriteLine("═══════════════════════════════════════\n", HeaderColor);
+    }
+
+    private void DisplayMenu(params string[] options)
+    {
+        foreach (var option in options)
+        {
+            WriteLine(option, MenuColor);
+        }
+    }
+
+    private void DisplayPrompt(string prompt)
+    {
+        Write(prompt, PromptColor);
+    }
+
+    private void DisplayStats()
+    {
+        WriteLine(player.GetStats(), InfoColor);
+    }
 
     public void Start()
     {
@@ -31,15 +73,17 @@ class Game
 
     private void CreateCharacter()
     {
-        Console.WriteLine("=== CHARACTER CREATION ===\n");
-        Console.Write("Enter your character name: ");
+        DrawHeader("CHARACTER CREATION");
+        DisplayPrompt("Enter your character name: ");
         string name = Console.ReadLine() ?? "Hero";
 
-        Console.WriteLine("\nChoose your class:");
-        Console.WriteLine("1. Warrior (High HP, Medium Damage)");
-        Console.WriteLine("2. Mage (Low HP, High Magic Damage)");
-        Console.WriteLine("3. Rogue (Medium HP, High Physical Damage)");
-        Console.Write("Choose (1-3): ");
+        WriteLine("\nChoose your class:", ConsoleColor.Magenta);
+        DisplayMenu(
+            "1. Warrior (High HP, Medium Damage)",
+            "2. Mage (Low HP, High Magic Damage)",
+            "3. Rogue (Medium HP, High Physical Damage)"
+        );
+        DisplayPrompt("Choose (1-3): ");
 
         string classChoice = Console.ReadLine() ?? "1";
         PlayerClass playerClass = classChoice switch
@@ -54,8 +98,8 @@ class Game
         store = new Store();
 
         Console.Clear();
-        Console.WriteLine($"Welcome {player?.Name}, the {playerClass}!\n");
-        Console.WriteLine(player?.GetStats());
+        WriteLine($"Welcome {player.Name}, the {playerClass}!\n", SuccessColor, true);
+        DisplayStats();
         PressAnyKey();
     }
 
@@ -63,28 +107,27 @@ class Game
     {
         while (gameRunning)
         {
-            Console.Clear();
-            Console.WriteLine($"╔════════════════════════════════════════╗");
-            Console.WriteLine($"║ {player?.Name} - Level {player?.Level} | HP: {player?.CurrentHP}/{player?.MaxHP} | Gold: {player?.Gold}");
-            Console.WriteLine($"╚════════════════════════════════════════╝\n");
+            DrawHeader($"{player.Name} - Level {player.Level} | HP: {player.CurrentHP}/{player.MaxHP} | Gold: {player.Gold}");
 
-            if (player?.CurrentHP <= 0)
+            if (player.CurrentHP <= 0)
             {
-                Console.WriteLine("You have been defeated! Game Over.");
+                WriteLine("You have been defeated! Game Over.", ErrorColor);
                 gameRunning = false;
                 break;
             }
 
-            Console.WriteLine("What would you like to do?");
-            Console.WriteLine("1. Enter the Dungeon");
-            Console.WriteLine("2. Visit the Store");
-            Console.WriteLine("3. Check Inventory");
-            Console.WriteLine("4. View Stats");
-            Console.WriteLine("5. Rest and Heal");
-            Console.WriteLine("6. Exit Game");
-            Console.Write("Choose (1-6): ");
+            WriteLine("What would you like to do?", ConsoleColor.Magenta);
+            DisplayMenu(
+                "1. Enter the Dungeon",
+                "2. Visit the Store",
+                "3. Check Inventory",
+                "4. View Stats",
+                "5. Rest and Heal",
+                "6. Exit Game"
+            );
+            DisplayPrompt("Choose (1-6): ");
 
-            string choice = Console.ReadLine();
+            string choice = Console.ReadLine() ?? "";
             switch (choice)
             {
                 case "1":
@@ -106,7 +149,7 @@ class Game
                     ExitGame();
                     break;
                 default:
-                    Console.WriteLine("Invalid choice. Try again.");
+                    WriteLine("Invalid choice. Try again.", ErrorColor);
                     PressAnyKey();
                     break;
             }
@@ -115,21 +158,19 @@ class Game
 
     private void EnterDungeon()
     {
-        Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine("          ENTERING THE DUNGEON");
-        Console.WriteLine("═══════════════════════════════════════\n");
+        DrawHeader("ENTERING THE DUNGEON");
+        WriteLine("You stand at the entrance of a dark, mysterious dungeon.", NarrationColor, true);
+        WriteLine("The air is cold and you can hear strange sounds echoing...\n", NarrationColor, true);
 
-        Console.WriteLine("You stand at the entrance of a dark, mysterious dungeon.");
-        Console.WriteLine("The air is cold and you can hear strange sounds echoing...\n");
+        WriteLine("Choose your path:", PromptColor);
+        DisplayMenu(
+            "1. Go LEFT into the shadows",
+            "2. Go RIGHT toward a faint light",
+            "3. Go STRAIGHT into the darkness"
+        );
+        DisplayPrompt("Choose (1-3): ");
 
-        Console.WriteLine("Choose your path:");
-        Console.WriteLine("1. Go LEFT into the shadows");
-        Console.WriteLine("2. Go RIGHT toward a faint light");
-        Console.WriteLine("3. Go STRAIGHT into the darkness");
-        Console.Write("Choose (1-3): ");
-
-        string pathChoice = Console.ReadLine();
+        string pathChoice = Console.ReadLine() ?? "";
 
         switch (pathChoice)
         {
@@ -143,20 +184,17 @@ class Game
                 StraightPath();
                 break;
             default:
-                Console.WriteLine("You freeze in fear and don't move.");
+                WriteLine("You freeze in fear and don't move.", InfoColor);
+                PressAnyKey();
                 break;
         }
     }
 
     private void LeftPath()
     {
-        Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine("            LEFT PATH - THE SHADOWS");
-        Console.WriteLine("═══════════════════════════════════════\n");
-
-        Console.WriteLine("You venture into the shadows...");
-        Console.WriteLine("Suddenly, a GOBLIN jumps out!\n");
+        DrawHeader("LEFT PATH - THE SHADOWS");
+        WriteLine("You venture into the shadows...", NarrationColor, true);
+        WriteLine("Suddenly, a GOBLIN jumps out!\n", EnemyColor, true);
 
         Enemy goblin = new Enemy("Goblin", 15, 3, 5);
         DoCombat(goblin);
@@ -164,21 +202,19 @@ class Game
         if (player.CurrentHP > 0)
         {
             Console.Clear();
-            Console.WriteLine("\nYou defeated the Goblin!");
+            WriteLine("\nYou defeated the Goblin!", SuccessColor);
             int goldReward = random.Next(10, 25);
             player.GainGold(goldReward);
-            Console.WriteLine($"You gained {goldReward} gold!\n");
+            WriteLine($"You gained {goldReward} gold!\n", GoldColor);
 
-            Console.WriteLine("You find a treasure chest!");
-            Console.WriteLine("1. Open it");
-            Console.WriteLine("2. Leave it and continue");
-            Console.Write("Choose: ");
+            WriteLine("You find a treasure chest!", InfoColor);
+            DisplayMenu("1. Open it", "2. Leave it and continue");
+            DisplayPrompt("Choose: ");
 
             if ((Console.ReadLine() ?? "") == "1")
             {
-                int potionReward = random.Next(1, 4);
-                player?.AddItem(new Item("Health Potion", ItemType.Potion, 25));
-                Console.WriteLine($"You found a Health Potion!\n");
+                player.AddItem(new Item("Health Potion", ItemType.Potion, 25));
+                WriteLine("You found a Health Potion!\n", SuccessColor);
             }
         }
 
@@ -187,78 +223,76 @@ class Game
 
     private void RightPath()
     {
-        Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine("         RIGHT PATH - THE LIGHT");
-        Console.WriteLine("═══════════════════════════════════════\n");
+        DrawHeader("RIGHT PATH - THE LIGHT");
+        WriteLine("You follow the light and discover a peaceful chamber.", InfoColor, true);
+        WriteLine("An old merchant stands here with glowing eyes.\n", ConsoleColor.Magenta, true);
 
-        Console.WriteLine("You follow the light and discover a peaceful chamber.");
-        Console.WriteLine("An old merchant stands here with glowing eyes.\n");
-
-        Console.WriteLine("The merchant speaks: 'I see the warrior spirit in you...'");
-        Console.WriteLine("1. Buy rare items from the merchant");
-        Console.WriteLine("2. Fight the merchant for his treasures");
-        Console.WriteLine("3. Leave the chamber");
-        Console.Write("Choose: ");
+        WriteLine("The merchant speaks: 'I see the warrior spirit in you...'", ConsoleColor.Cyan);
+        DisplayMenu(
+            "1. Buy rare items from the merchant",
+            "2. Fight the merchant for his treasures",
+            "3. Leave the chamber"
+        );
+        DisplayPrompt("Choose: ");
 
         string merchantChoice = Console.ReadLine() ?? "";
 
         if (merchantChoice == "1")
         {
             Console.Clear();
-            Console.WriteLine("\nThe merchant's wares:");
-            Console.WriteLine("- Magic Scroll (50 gold) - +10 Magic Damage");
-            Console.WriteLine("- Enchanted Shield (75 gold) - +20 Defense");
-            Console.WriteLine("- Elixir of Power (100 gold) - Full HP restore");
+            WriteLine("\nThe merchant's wares:", InfoColor);
+            WriteLine("- Magic Scroll (50 gold) - +10 Magic Damage", MenuColor);
+            WriteLine("- Enchanted Shield (75 gold) - +20 Defense", MenuColor);
+            WriteLine("- Elixir of Power (100 gold) - Full HP restore", MenuColor);
 
-            Console.Write("What would you like to buy? (name or 0 to skip): ");
+            DisplayPrompt("What would you like to buy? (name or 0 to skip): ");
             string itemChoice = (Console.ReadLine() ?? "").ToLower();
 
             switch (itemChoice)
             {
                 case "magic scroll":
-                    if (player?.Gold >= 50)
+                    if (player.Gold >= 50)
                     {
-                        player?.SpendGold(50);
-                        player?.AddItem(new Item("Magic Scroll", ItemType.Weapon, 0));
-                        Console.WriteLine("You purchased the Magic Scroll!");
+                        player.SpendGold(50);
+                        player.AddItem(new Item("Magic Scroll", ItemType.Weapon, 0));
+                        WriteLine("You purchased the Magic Scroll!", SuccessColor);
                     }
                     else
-                        Console.WriteLine("Not enough gold!");
+                        WriteLine("Not enough gold!", ErrorColor);
                     break;
                 case "enchanted shield":
-                    if (player?.Gold >= 75)
+                    if (player.Gold >= 75)
                     {
-                        player?.SpendGold(75);
-                        player?.AddItem(new Item("Enchanted Shield", ItemType.Armor, 0));
-                        Console.WriteLine("You purchased the Enchanted Shield!");
+                        player.SpendGold(75);
+                        player.AddItem(new Item("Enchanted Shield", ItemType.Armor, 0));
+                        WriteLine("You purchased the Enchanted Shield!", SuccessColor);
                     }
                     else
-                        Console.WriteLine("Not enough gold!");
+                        WriteLine("Not enough gold!", ErrorColor);
                     break;
                 case "elixir of power":
-                    if (player?.Gold >= 100)
+                    if (player.Gold >= 100)
                     {
-                        player?.SpendGold(100);
-                        player?.Heal(player?.MaxHP ?? 100);
-                        Console.WriteLine("You drank the Elixir! Full health restored!");
+                        player.SpendGold(100);
+                        player.Heal(player.MaxHP);
+                        WriteLine("You drank the Elixir! Full health restored!", SuccessColor);
                     }
                     else
-                        Console.WriteLine("Not enough gold!");
+                        WriteLine("Not enough gold!", ErrorColor);
                     break;
             }
         }
         else if (merchantChoice == "2")
         {
-            Console.WriteLine("\nThe merchant's eyes glow red!");
+            WriteLine("\nThe merchant's eyes glow red!", EnemyColor);
             Enemy merchant = new Enemy("Dark Merchant", 30, 6, 50);
             DoCombat(merchant);
 
             if (player.CurrentHP > 0)
             {
-                Console.WriteLine("\nYou defeated the merchant!");
+                WriteLine("\nYou defeated the merchant!", SuccessColor);
                 player.GainGold(100);
-                Console.WriteLine("You gained 100 gold!");
+                WriteLine("You gained 100 gold!", GoldColor);
             }
         }
 
@@ -267,37 +301,32 @@ class Game
 
     private void StraightPath()
     {
-        Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine("         STRAIGHT PATH - DARKNESS");
-        Console.WriteLine("═══════════════════════════════════════\n");
+        DrawHeader("STRAIGHT PATH - DARKNESS");
+        WriteLine("You walk deeper into absolute darkness...", NarrationColor, true);
+        WriteLine("Your eyes adjust and you see TWO ENEMIES!\n", EnemyColor, true);
 
-        Console.WriteLine("You walk deeper into absolute darkness...");
-        Console.WriteLine("Your eyes adjust and you see TWO ENEMIES!\n");
-
-        Console.WriteLine("A SKELETON WARRIOR and an ORC BRUTE block your path!\n");
+        WriteLine("A SKELETON WARRIOR and an ORC BRUTE block your path!\n", EnemyColor);
 
         Enemy skeleton = new Enemy("Skeleton Warrior", 20, 4, 15);
         Enemy orc = new Enemy("Orc Brute", 25, 5, 20);
 
-        Console.WriteLine("1. Fight them both!");
-        Console.WriteLine("2. Try to sneak past");
-        Console.Write("Choose: ");
+        DisplayMenu("1. Fight them both!", "2. Try to sneak past");
+        DisplayPrompt("Choose: ");
 
-        if (Console.ReadLine() == "1")
+        if ((Console.ReadLine() ?? "") == "1")
         {
             DoCombat(skeleton);
             if (player.CurrentHP > 0)
             {
-                Console.WriteLine("\nSkeleton defeated!\n");
+                WriteLine("\nSkeleton defeated!\n", SuccessColor);
                 DoCombat(orc);
 
                 if (player.CurrentHP > 0)
                 {
-                    Console.WriteLine("\nYou defeated both enemies!");
+                    WriteLine("\nYou defeated both enemies!", SuccessColor);
                     player.GainGold(100);
                     player.GainExperience(50);
-                    Console.WriteLine("You gained 100 gold and 50 experience!");
+                    WriteLine("You gained 100 gold and 50 experience!", GoldColor);
                 }
             }
         }
@@ -305,13 +334,14 @@ class Game
         {
             if (random.Next(0, 2) == 0)
             {
-                Console.WriteLine("You successfully sneak past them!");
-                Console.WriteLine("You find a hidden treasure room!");
+                WriteLine("You successfully sneak past them!", SuccessColor);
+                WriteLine("You find a hidden treasure room!", InfoColor);
                 player.GainGold(75);
+                WriteLine("You gained 75 gold!", GoldColor);
             }
             else
             {
-                Console.WriteLine("They spot you!");
+                WriteLine("They spot you!", ErrorColor);
                 DoCombat(skeleton);
             }
         }
@@ -319,22 +349,22 @@ class Game
         PressAnyKey();
     }
 
+    private void DisplayHP(Enemy enemy)
+    {
+        WriteLine($"{player.Name} HP: {player.CurrentHP}/{player.MaxHP}", PlayerColor);
+        WriteLine($"{enemy.Name} HP: {enemy.CurrentHP}/{enemy.MaxHP}\n", EnemyColor);
+    }
+
     private void DoCombat(Enemy enemy)
     {
-        Console.Clear();
-        Console.WriteLine($"╔════════════════════════════════════════╗");
-        Console.WriteLine($"║           COMBAT STARTED!              ║");
-        Console.WriteLine($"╚════════════════════════════════════════╝\n");
+        DrawHeader("COMBAT STARTED!");
 
         while (player.CurrentHP > 0 && enemy.CurrentHP > 0)
         {
-            Console.WriteLine($"{player.Name} HP: {player.CurrentHP}/{player.MaxHP}");
-            Console.WriteLine($"{enemy.Name} HP: {enemy.CurrentHP}/{enemy.MaxHP}\n");
+            DisplayHP(enemy);
 
-            Console.WriteLine("1. Attack");
-            Console.WriteLine("2. Use Potion");
-            Console.WriteLine("3. Defend");
-            Console.Write("Choose: ");
+            DisplayMenu("1. Attack", "2. Use Potion", "3. Defend");
+            DisplayPrompt("Choose: ");
 
             string action = Console.ReadLine() ?? "1";
 
@@ -350,7 +380,7 @@ class Game
                     PlayerDefend(enemy);
                     break;
                 default:
-                    Console.WriteLine("Invalid action!");
+                    WriteLine("Invalid action!", ErrorColor);
                     continue;
             }
 
@@ -364,17 +394,17 @@ class Game
 
         if (player.CurrentHP <= 0)
         {
-            Console.WriteLine("\n💀 You were defeated! 💀");
-            Console.WriteLine("You lost half your gold!");
+            WriteLine("\n💀 You were defeated! 💀", ErrorColor);
+            WriteLine("You lost half your gold!", GoldColor);
             player.SpendGold(player.Gold / 2);
             player.CurrentHP = 1;
         }
         else
         {
-            Console.WriteLine($"\n✓ Victory! {enemy.Name} defeated!");
+            WriteLine($"\n✓ Victory! {enemy.Name} defeated!", SuccessColor);
             int goldReward = enemy.GoldReward;
             player.GainGold(goldReward);
-            Console.WriteLine($"You gained {goldReward} gold!");
+            WriteLine($"You gained {goldReward} gold!", GoldColor);
         }
     }
 
@@ -383,16 +413,16 @@ class Game
         int damage = player.GetDamage() + random.Next(-2, 3);
         damage = Math.Max(1, damage);
         enemy.TakeDamage(damage);
-        Console.WriteLine($"You attack {enemy.Name} for {damage} damage!");
+        WriteLine($"You attack {enemy.Name} for {damage} damage!", ConsoleColor.Yellow);
     }
 
     private void PlayerDefend(Enemy enemy)
     {
-        Console.WriteLine($"You take a defensive stance!");
+        WriteLine($"You take a defensive stance!", ConsoleColor.Cyan);
         int enemyDamage = enemy.GetDamage() / 2 + random.Next(-1, 2);
         enemyDamage = Math.Max(0, enemyDamage);
         player.TakeDamage(enemyDamage);
-        Console.WriteLine($"{enemy.Name} attacks but you block half the damage ({enemyDamage})!");
+        WriteLine($"{enemy.Name} attacks but you block half the damage ({enemyDamage})!", ConsoleColor.Green);
     }
 
     private void UsePotion()
@@ -402,11 +432,11 @@ class Game
         {
             player.Heal(25);
             player.Inventory.Remove(potions);
-            Console.WriteLine("You used a Health Potion and recovered 25 HP!");
+            WriteLine("You used a Health Potion and recovered 25 HP!", ConsoleColor.Green);
         }
         else
         {
-            Console.WriteLine("You don't have any potions!");
+            WriteLine("You don't have any potions!", ConsoleColor.Red);
         }
     }
 
@@ -415,71 +445,70 @@ class Game
         int damage = enemy.GetDamage() + random.Next(-1, 2);
         damage = Math.Max(1, damage);
         player.TakeDamage(damage);
-        Console.WriteLine($"{enemy.Name} attacks you for {damage} damage!");
+        WriteLine($"{enemy.Name} attacks you for {damage} damage!", ConsoleColor.Red);
     }
 
     private void VisitStore()
     {
-        Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine("            WELCOME TO THE STORE");
-        Console.WriteLine("═══════════════════════════════════════\n");
-        Console.WriteLine($"Your Gold: {player.Gold}\n");
+        DrawHeader("WELCOME TO THE STORE");
+        WriteLine($"Your Gold: {player.Gold}\n", GoldColor);
 
         bool shopping = true;
         while (shopping)
         {
-            Console.WriteLine("1. Buy Health Potion (25 gold)");
-            Console.WriteLine("2. Buy Mana Potion (20 gold)");
-            Console.WriteLine("3. Buy Iron Sword (50 gold)");
-            Console.WriteLine("4. Buy Leather Armor (40 gold)");
-            Console.WriteLine("5. Sell items");
-            Console.WriteLine("6. Leave store");
-            Console.Write("Choose: ");
+            DisplayMenu(
+                "1. Buy Health Potion (25 gold)",
+                "2. Buy Mana Potion (20 gold)",
+                "3. Buy Iron Sword (50 gold)",
+                "4. Buy Leather Armor (40 gold)",
+                "5. Sell items",
+                "6. Leave store"
+            );
+            DisplayPrompt("Choose: ");
 
             string choice = Console.ReadLine() ?? "6";
 
             switch (choice)
             {
                 case "1":
-                    if (player?.Gold >= 25)
+                    if (player.Gold >= 25)
                     {
-                        player?.SpendGold(25);
-                        player?.AddItem(new Item("Health Potion", ItemType.Potion, 25));
-                        Console.WriteLine("✓ Purchased Health Potion!");
+                        player.SpendGold(25);
+                        player.AddItem(new Item("Health Potion", ItemType.Potion, 25));
+                        WriteLine("✓ Purchased Health Potion!", SuccessColor);
                     }
                     else
-                        Console.WriteLine("✗ Not enough gold!");
+                        WriteLine("✗ Not enough gold!", ErrorColor);
                     break;
                 case "2":
-                    if (player?.Gold >= 20)
+                    if (player.Gold >= 20)
                     {
-                        player?.SpendGold(20);
-                        player?.AddItem(new Item("Mana Potion", ItemType.Potion, 15));
-                        Console.WriteLine("✓ Purchased Mana Potion!");
+                        player.SpendGold(20);
+                        player.AddItem(new Item("Mana Potion", ItemType.Potion, 15));
+                        WriteLine("✓ Purchased Mana Potion!", SuccessColor);
                     }
                     else
-                        Console.WriteLine("✗ Not enough gold!");
+                        WriteLine("✗ Not enough gold!", ErrorColor);
                     break;
                 case "3":
-                    if (player?.Gold >= 50)
+                    if (player.Gold >= 50)
                     {
-                        player?.SpendGold(50);
-                        player?.AddItem(new Item("Iron Sword", ItemType.Weapon, 8));
-                        Console.WriteLine("✓ Purchased Iron Sword!");
+                        player.SpendGold(50);
+                        player.AddItem(new Item("Iron Sword", ItemType.Weapon, 8));
+                        WriteLine("✓ Purchased Iron Sword!", SuccessColor);
                     }
                     else
-                        Console.WriteLine("✗ Not enough gold!");
+                        WriteLine("✗ Not enough gold!", ErrorColor);
                     break;
                 case "4":
-                    if (player?.Gold >= 40)
+                    if (player.Gold >= 40)
                     {
-                        player?.SpendGold(40);
-                        player?.AddItem(new Item("Leather Armor", ItemType.Armor, 5));
-                        Console.WriteLine("✓ Purchased Leather Armor!");
+                        player.SpendGold(40);
+                        player.AddItem(new Item("Leather Armor", ItemType.Armor, 5));
+                        WriteLine("✓ Purchased Leather Armor!", SuccessColor);
                     }
                     else
-                        Console.WriteLine("✗ Not enough gold!");
+                        WriteLine("✗ Not enough gold!", ErrorColor);
                     break;
                 case "5":
                     SellItems();
@@ -488,93 +517,87 @@ class Game
                     shopping = false;
                     break;
                 default:
-                    Console.WriteLine("Invalid choice!");
+                    WriteLine("Invalid choice!", ErrorColor);
                     break;
             }
 
             if (choice != "6")
             {
-                Console.WriteLine($"Gold: {player?.Gold}\n");
+                WriteLine($"Gold: {player.Gold}\n", GoldColor);
             }
         }
     }
 
     private void SellItems()
     {
-        Console.WriteLine("\nItems to sell:");
+        WriteLine("\nItems to sell:", ConsoleColor.Magenta);
         if (player.Inventory.Count == 0)
         {
-            Console.WriteLine("You have no items!");
+            WriteLine("You have no items!", ConsoleColor.Yellow);
             return;
         }
 
         for (int i = 0; i < player.Inventory.Count; i++)
         {
-            Console.WriteLine($"{i + 1}. {player.Inventory[i].Name} (Worth {player.Inventory[i].Value / 2} gold)");
+            WriteLine($"{i + 1}. {player.Inventory[i].Name} (Worth {player.Inventory[i].Value / 2} gold)", ConsoleColor.Cyan);
         }
 
-        Console.Write("Choose item to sell (number): ");
-        if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= player?.Inventory.Count)
+        Write("Choose item to sell (number): ", ConsoleColor.Yellow);
+        if (int.TryParse(Console.ReadLine() ?? "", out int index) && index > 0 && index <= player.Inventory.Count)
         {
-            Item item = player?.Inventory[index - 1];
-            int salePrice = item?.Value / 2 ?? 0;
-            player?.GainGold(salePrice);
-            player?.Inventory.RemoveAt(index - 1);
-            Console.WriteLine($"Sold {item.Name} for {salePrice} gold!");
+            Item item = player.Inventory[index - 1];
+            int salePrice = item.Value / 2;
+            player.GainGold(salePrice);
+            player.Inventory.RemoveAt(index - 1);
+            WriteLine($"Sold {item.Name} for {salePrice} gold!", ConsoleColor.Green);
         }
     }
 
     private void ViewInventory()
     {
-        Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine("           YOUR INVENTORY");
-        Console.WriteLine("═══════════════════════════════════════\n");
+        DrawHeader("YOUR INVENTORY");
 
         if (player.Inventory.Count == 0)
         {
-            Console.WriteLine("Your inventory is empty!");
+            WriteLine("Your inventory is empty!", InfoColor);
         }
         else
         {
             for (int i = 0; i < player.Inventory.Count; i++)
             {
                 Item item = player.Inventory[i];
-                Console.WriteLine($"{i + 1}. {item.Name} ({item.Type})");
+                WriteLine($"{i + 1}. {item.Name} ({item.Type})", MenuColor);
             }
         }
 
-        Console.WriteLine($"\nGold: {player?.Gold}");
+        WriteLine($"\nGold: {player.Gold}", GoldColor);
         PressAnyKey();
     }
 
     private void ViewStats()
     {
-        Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine("            CHARACTER STATS");
-        Console.WriteLine("═══════════════════════════════════════\n");
-        Console.WriteLine(player.GetStats());
+        DrawHeader("CHARACTER STATS");
+        DisplayStats();
         PressAnyKey();
     }
 
     private void RestAndHeal()
     {
         Console.Clear();
-        Console.WriteLine("You rest at the tavern...\n");
+        WriteLine("You rest at the tavern...\n", ConsoleColor.DarkCyan, true);
         player.Heal(player.MaxHP);
-        Console.WriteLine("You are fully healed!");
+        WriteLine("You are fully healed!", ConsoleColor.Green);
         PressAnyKey();
     }
 
     private void ExitGame()
     {
         Console.Clear();
-        Console.WriteLine("═══════════════════════════════════════");
-        Console.WriteLine($"Thanks for playing, {player?.Name}!");
-        Console.WriteLine($"Final Level: {player?.Level}");
-        Console.WriteLine($"Total Gold: {player?.Gold}");
-        Console.WriteLine("═══════════════════════════════════════");
+        WriteLine("═══════════════════════════════════════", ConsoleColor.DarkYellow);
+        WriteLine($"Thanks for playing, {player.Name}!", ConsoleColor.Yellow);
+        WriteLine($"Final Level: {player.Level}", ConsoleColor.Yellow);
+        WriteLine($"Total Gold: {player.Gold}", ConsoleColor.Yellow);
+        WriteLine("═══════════════════════════════════════", ConsoleColor.DarkYellow);
         gameRunning = false;
     }
 
@@ -582,6 +605,32 @@ class Game
     {
         Console.WriteLine("\nPress any key to continue...");
         Console.ReadKey();
+    }
+
+    private void WriteLine(string text, ConsoleColor color = ConsoleColor.White, bool slow = false)
+    {
+        Console.ForegroundColor = color;
+        if (slow)
+        {
+            foreach (char c in text)
+            {
+                Console.Write(c);
+                Thread.Sleep(15);
+            }
+            Console.WriteLine();
+        }
+        else
+        {
+            Console.WriteLine(text);
+        }
+        Console.ResetColor();
+    }
+
+    private void Write(string text, ConsoleColor color = ConsoleColor.White)
+    {
+        Console.ForegroundColor = color;
+        Console.Write(text);
+        Console.ResetColor();
     }
 }
 
