@@ -12,3 +12,4 @@ C:\Users\ArnaudB803\versie beheer\MyFirstRepository\obj\Debug\net9.0\refint\MyFi
 C:\Users\ArnaudB803\versie beheer\MyFirstRepository\obj\Debug\net9.0\MyFirstRepository.pdb
 C:\Users\ArnaudB803\versie beheer\MyFirstRepository\obj\Debug\net9.0\MyFirstRepository.genruntimeconfig.cache
 C:\Users\ArnaudB803\versie beheer\MyFirstRepository\obj\Debug\net9.0\ref\MyFirstRepository.dll
+C:\Users\ArnaudB803\versie beheer\MyFirstRepository\obj\Debug\net9.0\MyFirstRepository.sourcelink.json
