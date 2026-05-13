@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Hacking sim")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ddb0839e2d6d8caa2b2de8b3bc65ca35fc1df1c9")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7dab044df2849f12e4319682497189d32c49a02d")]
 [assembly: System.Reflection.AssemblyProductAttribute("Hacking sim")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Hacking sim")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
